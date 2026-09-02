@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>二类电商爆款脚本生成智能体 · 可视化演示版</title>
+<style>
+:root {
+  --primary: #1f6feb;
+  --primary-dark: #1752b3;
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --text: #1c2733;
+  --muted: #6b7a8d;
+  --ok: #1a9e5c;
+  --warn: #d97706;
+  --danger: #dc2626;
+  --border: #e3e8f0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6;
+}
+header {
+  background: linear-gradient(120deg, #1f6feb, #6d5ae0);
+  color: #fff; padding: 22px 28px 18px;
+}
+header h1 { font-size: 22px; }
+header p { font-size: 13px; opacity: .92; margin-top: 4px; }
+main {
+  max-width: 1080px; margin: 20px auto 10px; padding: 0 16px;
+  display: grid; grid-template-columns: 380px 1fr; gap: 18px; align-items: start;
+}
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+.panel h2 { font-size: 15px; margin-bottom: 10px; color: var(--primary-dark); border-left: 3px solid var(--primary); padding-left: 8px; }
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.field input, .field textarea {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+  font-size: 14px; font-family: inherit; outline: none; transition: border-color .15s;
+}
+.field input:focus, .field textarea:focus { border-color: var(--primary); }
+.field textarea { resize: vertical; min-height: 52px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; }
+.preset-btn {
+  background: #eef3ff; color: var(--primary-dark); border: 1px solid #cfddff;
+  border-radius: 999px; padding: 5px 12px; font-size: 12px; cursor: pointer;
+}
+.preset-btn:hover { background: #dfe9ff; }
+.check { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 10px 0; cursor: pointer; }
+.check input { width: 16px; height: 16px; accent-color: var(--primary); }
+.style-cards { display: flex; flex-direction: column; gap: 10px; }
+.style-card {
+  border: 2px solid var(--border); border-radius: 10px; padding: 12px 14px; cursor: pointer;
+  transition: all .15s; background: #fff;
+}
+.style-card:hover { border-color: #b9cdf5; }
+.style-card.active { border-color: var(--primary); background: #eef3ff; }
+.style-card .t { font-size: 14px; font-weight: 600; }
+.style-card .d { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.gen-btn {
+  width: 100%; margin-top: 14px; padding: 12px; border: none; border-radius: 10px;
+  background: linear-gradient(120deg, #1f6feb, #6d5ae0); color: #fff; font-size: 16px;
+  font-weight: 600; cursor: pointer; letter-spacing: 2px;
+}
+.gen-btn:hover { filter: brightness(1.06); }
+.gen-btn:active { transform: translateY(1px); }
+.hint { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: center; }
+#result .empty {
+  border: 2px dashed var(--border); border-radius: 10px; padding: 36px 20px; text-align: center; color: var(--muted);
+}
+#result .empty b { display: block; font-size: 15px; margin-bottom: 6px; color: var(--text); }
+.script-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+.script-meta { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+.block { margin-bottom: 16px; }
+.block h3 { font-size: 13px; color: var(--primary-dark); margin-bottom: 8px; border-left: 3px solid var(--primary); padding-left: 8px; }
+.voiceover {
+  background: #f7f9fc; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+  white-space: pre-wrap; font-size: 14px;
+}
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; vertical-align: top; }
+th { background: #f2f5fa; white-space: nowrap; }
+.badge { display: inline-block; padding: 2px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+.badge.ok { background: #e6f6ee; color: var(--ok); }
+.badge.warn { background: #fef3e2; color: var(--warn); }
+.issue-list { margin-top: 8px; font-size: 13px; }
+.issue-list li { margin-left: 18px; margin-bottom: 4px; }
+.disc { margin-top: 8px; font-size: 13px; color: var(--muted); }
+.btn-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+.btn {
+  padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px; background: #fff;
+  font-size: 13px; cursor: pointer; color: var(--text);
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+footer { max-width: 1080px; margin: 16px auto 30px; padding: 0 16px; }
+details {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; font-size: 13px;
+}
+details summary { cursor: pointer; font-weight: 600; color: var(--primary-dark); }
+details p, details li { margin: 6px 0; color: var(--muted); }
+@media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>二类电商爆款脚本生成智能体</h1>
+  <p>输入商品信息 → 选择爆款结构模板 → 一键生成口播文案 + 分镜脚本，自动完成合规校验</p>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>① 商品信息</h2>
+    <div class="row" style="margin-bottom:12px;">
+      <span style="font-size:12px;color:var(--muted);align-self:center;">示例商品：</span>
+      <button class="preset-btn" data-preset="0">草本温灸肠胃贴</button>
+      <button class="preset-btn" data-preset="1">主动降噪蓝牙耳机</button>
+      <button class="preset-btn" data-preset="2">暖颈贴</button>
+    </div>
+    <div class="field"><label>商品名称 *</label><input id="f_name" placeholder="如：草本温灸肠胃贴"></div>
+    <div class="field"><label>价格（元）</label><input id="f_price" type="number" step="0.1" min="0" placeholder="39.9"></div>
+    <div class="field"><label>目标人群</label><input id="f_audience" placeholder="如：上班久坐族、有老人小孩的家庭"></div>
+    <div class="field"><label>核心痛点（用逗号或换行分隔）</label><textarea id="f_pains" placeholder="肚子着凉胀气&#10;久坐办公室胃胀不消化"></textarea></div>
+    <div class="field"><label>核心卖点（用逗号或换行分隔）</label><textarea id="f_points" placeholder="草本恒温发热&#10;持续温灸8小时"></textarea></div>
+    <div class="field"><label>优惠信息</label><input id="f_promo" placeholder="如：第二件半价"></div>
+    <div class="field"><label>信任背书（可选）</label><input id="f_trust" placeholder="如：已通过相关资质备案，累计服务百万用户"></div>
+    <label class="check"><input type="checkbox" id="f_medical"> 医疗保健类商品（如肠胃贴/膏药等）</label>
+
+    <h2 style="margin-top:18px;">② 爆款结构模板</h2>
+    <div class="style-cards" id="styleCards">
+      <div class="style-card active" data-style="pain"><div class="t">痛点直击型</div><div class="d">开场直戳用户痛点，3 秒抓住停留</div></div>
+      <div class="style-card" data-style="reverse"><div class="t">效果反差型</div><div class="d">前后反差制造期待，卖点自然植入</div></div>
+      <div class="style-card" data-style="scenario"><div class="t">真实场景型</div><div class="d">生活化场景代入，共鸣感强、转化顺</div></div>
+    </div>
+
+    <h2 style="margin-top:18px;">③ 合规设置</h2>
+    <label class="check"><input type="checkbox" id="f_compliance" checked> 启用医疗品类合规校验</label>
+    <label class="check"><input type="checkbox" id="f_autofix" checked> 自动替换违禁表述</label>
+    <button class="gen-btn" id="genBtn">生成带货脚本</button>
+    <p class="hint">可多次点击，每次生成不同版本</p>
+  </section>
+
+  <section class="panel">
+    <h2>生成结果</h2>
+    <div id="result">
+      <div class="empty"><b>等待生成</b>填写左侧商品信息后，点击「生成带货脚本」</div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <details>
+    <summary>演示提示</summary>
+    <p><b>产品定位</b>：面向千川/二类电商投放团队的脚本生产效率智能体，解决「产量瓶颈 + 结构不稳 + 合规风险」三个问题。</p>
+    <p><b>演示话术</b>：</p>
+    <ul>
+      <li>1. 点「草本温灸肠胃贴」一键填入 → 展示医疗品类合规校验自动生效（勾选状态 + 生成后的合规提示语）；</li>
+      <li>2. 切换三种爆款结构模板 → 生成结果的口播开头随之变化；</li>
+      <li>3. 点「复制口播文案」→ 展示可直接投放到千川/抖音后台的交付物。</li>
+    </ul>
+    <p><b>我的角色</b>：业务规则设计者 + 产品设计者（模板规则、合规标准、业务流程由我定义，本智能体为落地实现）。</p>
+  </details>
+</footer>
+
+<script id="app-engine">
+// ===== 数据层：模板库 / 合规规则 / 商品预设（由 Python 项目数据同步构建） =====
+const TEMPLATE_DATA = {"hooks":[{"id":"pain_direct","name":"痛点直击","template":"你是不是也{痛点}？先别划走，30秒给你讲清楚。"},{"id":"reverse","name":"反差反转","template":"之前我也没想到，{卖点}，能解决{痛点}这个老问题。"},{"id":"suspense","name":"悬念留人","template":"为什么最近越来越多人都在用{商品}？答案在最后30秒。"},{"id":"benefit_first","name":"利益前置","template":"{优惠}！今天可能是你离{商品}最近的一次。"},{"id":"identity","name":"身份共鸣","template":"每天{人群}的你，一定懂{痛点}这种感觉。"},{"id":"number","name":"数字冲击","template":"1件小东西，帮你解决{痛点}的困扰，看完你就懂了。"},{"id":"scenario","name":"场景代入","template":"凌晨的闹钟还没响，肚子先开始翻江倒海……{痛点}，真受够了。"}],"structures":[{"id":"qianchuan_classic","name":"千川经典五段式","sections":[{"name":"黄金3秒钩子","duration":"0-3s","scene":"痛点场景特写 + 大字标题弹出，前3秒必须抓住停留"},{"name":"痛点放大","duration":"3-8s","scene":"快切3-5个生活痛点镜头，配合压抑感BGM"},{"name":"产品亮相·卖点论证","duration":"8-20s","scene":"产品实拍+功能演示，卖点逐条打出字幕"},{"name":"信任背书","duration":"20-26s","scene":"资质/数据/用户反馈画面，增强可信度"},{"name":"限时转化CTA","duration":"26-30s","scene":"价格+优惠信息大字弹出，引导点击小黄车"}]},{"id":"quick_three","name":"快节奏三段式","sections":[{"name":"钩子直入","duration":"0-3s","scene":"痛点画面直接开场，语速拉满"},{"name":"卖点轰炸","duration":"3-15s","scene":"产品核心卖点逐条快切，配字幕卡点"},{"name":"直接转化","duration":"15-20s","scene":"价格+下单指令，最后3秒黄金CTA"}]}],"cta":[{"id":"urgency","name":"限时优惠","template":"现在下单{优惠}，仅限前{限量}名，点下方小黄车马上带走。"},{"id":"scarcity","name":"库存稀缺","template":"库存不多，抢完就恢复原价，犹豫一下可能就没了。"},{"id":"risk_reverse","name":"风险逆转","template":"不满意支持7天无理由退换，先试试，好用再留下。"},{"id":"direct","name":"直接指令","template":"点下方小黄车，{价格}元带走，今天就能用上。"}]};
+const RULE_DATA = {"banned_words":[{"id":"ads_absolute","scope":"all","pattern":"最(好|佳|低|高|大|强|优|先进|新款|新|多|快)|国家级|世界级|顶级|首选|唯一|第一|全网最低|史上最|绝无仅有|销量第一","severity":"high","message":"广告法绝对化用语，涉嫌虚假宣传","suggestion":"删除或替换为可验证的客观表述"},{"id":"medical_cure","scope":"medical","pattern":"根治|治愈|痊愈|药到病除|断根|包治|彻底根治|永不复发|一贴见效|三天见效|当天见效|100%有效|百分百有效|无副作用|纯天然无添加|医院推荐|医生都说好|专家推荐","severity":"high","message":"医疗功效夸大宣传，普通用品不得宣称治疗功效","suggestion":"改为「缓解」「改善」「调理」等合规表述"},{"id":"medical_absolute","scope":"medical","pattern":"包治百病|药到病除|一次根治|永不再犯|告别所有|任何人群都适用","severity":"high","message":"医疗类绝对化承诺，涉嫌违反广告法","suggestion":"改为「多数人群适用」「有助于缓解」等表述"},{"id":"common_exaggeration","scope":"all","pattern":"保证有效|保证不反弹|无效退款百分之|躺着瘦|一夜暴富|稳赚不赔","severity":"medium","message":"夸大承诺类表述，容易引发投诉","suggestion":"改为「大概率」「多数情况下」等谨慎表述"}],"auto_fix":{"根治":"缓解","治愈":"改善","痊愈":"改善","药到病除":"缓解不适","断根":"改善","彻底":"有效","一贴见效":"温和调理","三天见效":"坚持使用改善","当天见效":"坚持使用改善","永不复发":"长期坚持调理","100%有效":"多数用户反馈有效","百分百有效":"多数用户反馈有效","无副作用":"成分温和","纯天然无添加":"成分温和","医院推荐":"经过专业机构备案","医生都说好":"获得专业认可","专家推荐":"获得专业认可","包治百病":"有助于日常调理","一次根治":"坚持使用改善","永不再犯":"长期坚持调理","告别所有":"缓解大部分","任何人群都适用":"多数人群适用","保证有效":"多数用户反馈有效","保证不反弹":"效果因人而异"},"required_disclaimers":{"medical":["本品为日常用品，不能代替药物，如有不适请及时就医","效果因人而异，请按说明使用"]}};
+const PRODUCT_PRESETS = [{"name":"草本温灸肠胃贴","category":"医疗保健","price":39.9,"brand":"XX牌","selling_points":["草本恒温发热","持续温灸8小时","医用级无纺布不粘毛","一撕一贴全家适用"],"pain_points":["肚子着凉胀气","久坐办公室胃胀不消化","老人小孩肠胃敏感","换季肚子闹脾气"],"target_audience":"上班久坐族、有老人小孩的家庭","trust_proof":"已通过相关资质备案，累计服务百万用户","promo":"第二件半价","medical":true},{"name":"主动降噪蓝牙耳机","category":"3C数码","price":199.0,"brand":"XX声学","selling_points":["40dB深度主动降噪","40小时超长续航","单耳仅4.2克久戴不痛","蓝牙5.4秒连不卡顿"],"pain_points":["通勤地铁噪音太大","电量焦虑一天两充","久戴耳朵胀痛","通话对方听不清"],"target_audience":"通勤族、学生党、出差党","trust_proof":"国际声学实验室联合调音，30天试用不满意包退","promo":"领券立减50元","medical":false}];
+
+const HOOK_STYLES = {
+  pain:     { name: "痛点直击型", hookId: "pain_direct" },
+  reverse:  { name: "效果反差型", hookId: "reverse" },
+  scenario: { name: "真实场景型", hookId: "scenario" }
+};
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function sample(arr, k) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy.slice(0, k);
+}
+
+function fill(template, p) {
+  return template
+    .replaceAll("{商品}", p.name)
+    .replaceAll("{价格}", p.priceText)
+    .replaceAll("{痛点}", pick(p.pains))
+    .replaceAll("{卖点}", pick(p.points))
+    .replaceAll("{人群}", p.audience)
+    .replaceAll("{品牌}", p.brand || "这款产品")
+    .replaceAll("{背书}", p.trust || "众多用户真实体验反馈")
+    .replaceAll("{优惠}", p.promo || "限时优惠")
+    .replaceAll("{限量}", String(30 + Math.floor(Math.random() * 71)));
+}
+
+function checkCompliance(text, medical) {
+  const issues = [];
+  for (const rule of RULE_DATA.banned_words) {
+    if (rule.scope === "medical" && !medical) continue;
+    const re = new RegExp(rule.pattern, "g");
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      issues.push({ rule_id: rule.id, word: m[0], message: rule.message, severity: rule.severity, suggestion: rule.suggestion });
+    }
+  }
+  return issues;
+}
+
+function fixText(text, medical) {
+  const replaced = [];
+  let fixed = text;
+  const entries = Object.entries(RULE_DATA.auto_fix).sort((a, b) => b[0].length - a[0].length);
+  for (const [word, repl] of entries) {
+    if (word && repl && fixed.includes(word)) {
+      fixed = fixed.split(word).join(repl);
+      replaced.push({ word: word, to: repl });
+    }
+  }
+  return { text: fixed, remaining: checkCompliance(fixed, medical), replaced: replaced };
+}
+
+function shorten(text, limit) { return text.length <= limit ? text : text.slice(0, limit) + "…"; }
+
+function generateScript(product, styleId, complianceOn, autoFixOn) {
+  const style = HOOK_STYLES[styleId];
+  const hook = TEMPLATE_DATA.hooks.find(h => h.id === style.hookId);
+  const structure = TEMPLATE_DATA.structures[0];
+  const cta = pick(TEMPLATE_DATA.cta);
+  const medical = product.medical && complianceOn;
+
+  const hookLine = fill(hook.template, product);
+  const painLine = "你" + sample(product.pains, Math.min(3, product.pains.length)).join("、") + "……这些场景是不是都经历过？";
+  const introLine = "今天给你带来" + product.name + "：" + sample(product.points, Math.min(3, product.points.length)).join("、") + "，帮你把这些烦恼一个个搞定。";
+  const trustLine = (product.trust || "众多用户真实体验反馈") + "。";
+  const ctaLine = fill(cta.template, product);
+  const lines = [hookLine, painLine, introLine, trustLine, ctaLine];
+  let voiceover = lines.join("\n");
+
+  const disclaimers = (complianceOn && product.medical) ? (RULE_DATA.required_disclaimers.medical || []) : [];
+  if (disclaimers.length) {
+    voiceover += "\n\n" + disclaimers.map(d => "（合规提示）" + d).join("\n");
+  }
+
+  let issues = [], replaced = [];
+  if (complianceOn) {
+    if (autoFixOn) {
+      const r = fixText(voiceover, medical);
+      voiceover = r.text; issues = r.remaining; replaced = r.replaced;
+    } else {
+      issues = checkCompliance(voiceover, medical);
+    }
+  } else {
+    issues = checkCompliance(voiceover, false);
+  }
+
+  const bodyLines = voiceover.split("\n\n")[0].split("\n");
+  const shots = structure.sections.map((sec, i) => ({
+    time_range: sec.duration,
+    scene: sec.scene,
+    subtitle: shorten(bodyLines[i] || "", 30),
+    voiceover: bodyLines[i] || ""
+  }));
+
+  return {
+    title: "方案 · " + style.name + " · " + product.name,
+    hookType: style.name,
+    structureName: structure.name,
+    voiceover: voiceover,
+    shots: shots,
+    compliance: {
+      passed: issues.length === 0,
+      issue_count: issues.length,
+      issues: issues,
+      disclaimers: disclaimers,
+      replaced: replaced
+    }
+  };
+}
+
+// ===== UI 层（仅浏览器环境执行） =====
+if (typeof document !== "undefined") {
+  const $ = id => document.getElementById(id);
+  let currentStyle = "pain";
+
+  document.querySelectorAll(".style-card").forEach(card => {
+    card.addEventListener("click", () => {
+      document.querySelectorAll(".style-card").forEach(c => c.classList.remove("active"));
+      card.classList.add("active");
+      currentStyle = card.dataset.style;
+    });
+  });
+
+  document.querySelectorAll(".preset-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const preset = PRODUCT_PRESETS[parseInt(btn.dataset.preset, 10)];
+      if (!preset) return;
+      $("f_name").value = preset.name;
+      $("f_price").value = preset.price;
+      $("f_audience").value = preset.target_audience || "";
+      $("f_pains").value = (preset.pain_points || []).join("、");
+      $("f_points").value = (preset.selling_points || []).join("、");
+      $("f_promo").value = preset.promo || "";
+      $("f_trust").value = preset.trust_proof || "";
+      $("f_medical").checked = !!preset.medical;
+    });
+  });
+
+  $("genBtn").addEventListener("click", () => {
+    const name = $("f_name").value.trim();
+    if (!name) { alert("请先填写商品名称"); $("f_name").focus(); return; }
+    const rawPrice = parseFloat($("f_price").value);
+    const price = isNaN(rawPrice) ? 39.9 : rawPrice;
+    const priceText = Number.isInteger(price) ? String(price) : String(price);
+    const split = s => s.split(/[,，、;；\n]+/).map(x => x.trim()).filter(Boolean);
+
+    const product = {
+      name: name,
+      priceText: priceText,
+      audience: $("f_audience").value.trim() || "目标人群",
+      pains: split($("f_pains").value),
+      points: split($("f_points").value),
+      promo: $("f_promo").value.trim(),
+      trust: $("f_trust").value.trim(),
+      medical: $("f_medical").checked
+    };
+    if (!product.pains.length) product.pains = ["生活小烦恼"];
+    if (!product.points.length) product.points = ["好用"];
+
+    const complianceOn = $("f_compliance").checked;
+    const autoFixOn = $("f_autofix").checked;
+    const script = generateScript(product, currentStyle, complianceOn, autoFixOn);
+    render(script);
+  });
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function render(script) {
+    const c = script.compliance;
+    const badge = c.passed
+      ? '<span class="badge ok">✅ 合规通过（0 个问题）</span>'
+      : '<span class="badge warn">⚠️ ' + c.issue_count + ' 个合规问题</span>';
+
+    let issuesHtml = "";
+    if (c.issues.length) {
+      issuesHtml = '<ul class="issue-list">' + c.issues.map(i =>
+        "<li>【" + esc(i.severity) + "】「" + esc(i.word) + "」" + esc(i.message) +
+        (i.suggestion ? "（建议：" + esc(i.suggestion) + "）" : "") + "</li>"
+      ).join("") + "</ul>";
+    }
+    let replacedHtml = "";
+    if (c.replaced.length) {
+      replacedHtml = '<p class="disc">自动修正：' + c.replaced.map(r =>
+        "「" + esc(r.word) + "」→「" + esc(r.to) + "」").join("；") + "</p>";
+    }
+    let discHtml = "";
+    if (c.disclaimers.length) {
+      discHtml = '<p class="disc">合规提示：' + c.disclaimers.map(esc).join("；") + "</p>";
+    }
+
+    const shotsHtml = '<table><tr><th>时间</th><th>画面</th><th>字幕</th><th>口播</th></tr>' +
+      script.shots.map(s => "<tr><td>" + esc(s.time_range) + "</td><td>" + esc(s.scene) + "</td><td>" + esc(s.subtitle) + "</td><td>" + esc(s.voiceover) + "</td></tr>").join("") +
+      "</table>";
+
+    $("result").innerHTML =
+      '<div class="script-title">' + esc(script.title) + "</div>" +
+      '<div class="script-meta">结构：' + esc(script.structureName) + " ｜ 模板：" + esc(script.hookType) + "</div>" +
+      '<div class="block"><h3>口播文案</h3><div class="voiceover">' + esc(script.voiceover) + "</div></div>" +
+      '<div class="block"><h3>分镜脚本</h3>' + shotsHtml + "</div>" +
+      '<div class="block"><h3>合规结果</h3>' + badge + issuesHtml + replacedHtml + discHtml + "</div>" +
+      '<div class="btn-row">' +
+      '<button class="btn primary" id="copyVoice">复制口播文案</button>' +
+      '<button class="btn" id="copyAll">复制完整结果</button>' +
+      '<button class="btn" id="downloadMd">下载 .md</button>' +
+      "</div>";
+
+    $("copyVoice").addEventListener("click", () => copyText(script.voiceover));
+    $("copyAll").addEventListener("click", () => copyText(markdownOf(script)));
+    $("downloadMd").addEventListener("click", () => download(markdownOf(script), script.title.replace(/[\\/:*?"<>|]/g, "_") + ".md"));
+  }
+
+  function markdownOf(script) {
+    const c = script.compliance;
+    let md = "# " + script.title + "\n\n";
+    md += "- 结构：" + script.structureName + "\n- 模板：" + script.hookType + "\n\n";
+    md += "## 口播文案\n\n" + script.voiceover + "\n\n";
+    md += "## 分镜脚本\n\n| 时间 | 画面 | 字幕 | 口播 |\n| --- | --- | --- | --- |\n";
+    md += script.shots.map(s => "| " + s.time_range + " | " + s.scene + " | " + s.subtitle + " | " + s.voiceover + " |").join("\n") + "\n\n";
+    md += "## 合规结果\n\n" + (c.passed ? "✅ 通过" : "⚠️ " + c.issue_count + " 个问题") + "\n";
+    c.issues.forEach(i => { md += "- " + i.word + "：" + i.message + "\n"; });
+    c.disclaimers.forEach(d => { md += "- 合规提示：" + d + "\n"; });
+    return md;
+  }
+
+  function copyText(text) {
+    const done = () => { showToast("已复制到剪贴板"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else {
+      fallbackCopy(text, done);
+    }
+  }
+
+  function fallbackCopy(text, done) {
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) { alert("复制失败，请手动选择复制"); }
+    document.body.removeChild(ta);
+  }
+
+  function download(text, filename) {
+    const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  let toastTimer = null;
+  function showToast(msg) {
+    let el = document.getElementById("toast");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "toast";
+      el.style.cssText = "position:fixed;left:50%;bottom:36px;transform:translateX(-50%);background:#1c2733;color:#fff;padding:10px 22px;border-radius:999px;font-size:14px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2);";
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.display = "block";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.style.display = "none"; }, 1600);
+  }
+}
+</script>
+</body>
+</html>

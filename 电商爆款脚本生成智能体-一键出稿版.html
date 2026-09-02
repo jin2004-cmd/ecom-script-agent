@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>一键爆款脚本生成智能体 · 仲先医肠胃贴</title>
+<style>
+:root {
+  --primary: #1f6feb;
+  --primary-dark: #1752b3;
+  --accent: #6d5ae0;
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --text: #1c2733;
+  --muted: #6b7a8d;
+  --ok: #1a9e5c;
+  --warn: #d97706;
+  --border: #e3e8f0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: "Microsoft YaHei", "PingFang SC", "Noto Sans SC", sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.65;
+}
+header {
+  background: linear-gradient(120deg, #1f6feb, var(--accent));
+  color: #fff; padding: 20px 28px 16px;
+}
+header h1 { font-size: 21px; }
+header p { font-size: 13px; opacity: .93; margin-top: 4px; }
+main {
+  max-width: 1120px; margin: 18px auto 8px; padding: 0 16px;
+  display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start;
+}
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+.panel h2 { font-size: 15px; margin-bottom: 12px; color: var(--primary-dark); border-left: 3px solid var(--primary); padding-left: 8px; }
+.style-cards { display: flex; flex-direction: column; gap: 10px; }
+.style-card {
+  border: 2px solid var(--border); border-radius: 10px; padding: 12px 14px; cursor: pointer;
+  transition: all .15s; background: #fff; position: relative;
+}
+.style-card:hover { border-color: #b9cdf5; }
+.style-card.active { border-color: var(--primary); background: #eef3ff; }
+.style-card .t { font-size: 14px; font-weight: 600; }
+.style-card .d { font-size: 12px; color: var(--muted); margin-top: 2px; padding-right: 64px; }
+.style-card .cnt {
+  position: absolute; right: 12px; top: 12px; font-size: 11px; color: var(--primary-dark);
+  background: #dfe9ff; border-radius: 999px; padding: 2px 9px;
+}
+.gen-btn {
+  width: 100%; margin-top: 12px; padding: 13px; border: none; border-radius: 10px;
+  background: linear-gradient(120deg, #1f6feb, var(--accent)); color: #fff; font-size: 16px;
+  font-weight: 600; cursor: pointer; letter-spacing: 1px;
+}
+.gen-btn:hover { filter: brightness(1.06); }
+.gen-btn:active { transform: translateY(1px); }
+.gen-btn.secondary { background: #fff; color: var(--primary-dark); border: 2px solid var(--primary); margin-top: 10px; }
+.gen-btn.secondary:hover { background: #eef3ff; }
+.hint { font-size: 12px; color: var(--muted); margin-top: 10px; text-align: center; }
+#result .empty {
+  border: 2px dashed var(--border); border-radius: 10px; padding: 40px 20px; text-align: center; color: var(--muted);
+}
+#result .empty b { display: block; font-size: 15px; margin-bottom: 6px; color: var(--text); }
+.script-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+.script-meta { font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.8; }
+.ok-text { color: var(--ok); font-weight: 600; }
+.warn-text { color: var(--warn); font-weight: 600; }
+.block { margin-bottom: 16px; }
+.block h3 { font-size: 13px; color: var(--primary-dark); margin-bottom: 8px; border-left: 3px solid var(--primary); padding-left: 8px; }
+.voiceover {
+  background: #f7f9fc; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px;
+  white-space: pre-wrap; font-size: 14px;
+}
+.mod { background: #fafbff; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; font-size: 13px; }
+.mod-tag { display: inline-block; background: var(--primary); color: #fff; border-radius: 6px; padding: 1px 8px; font-size: 12px; margin-right: 8px; }
+.badge { display: inline-block; padding: 2px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+.badge.ok { background: #e6f6ee; color: var(--ok); }
+.badge.warn { background: #fef3e2; color: var(--warn); }
+.issue-list { margin-top: 8px; font-size: 13px; }
+.issue-list li { margin-left: 18px; margin-bottom: 4px; }
+.disc { margin-top: 8px; font-size: 13px; color: var(--muted); }
+.btn-row { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+.btn {
+  padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px; background: #fff;
+  font-size: 13px; cursor: pointer; color: var(--text);
+}
+.btn:hover { border-color: var(--primary); color: var(--primary); }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.tab {
+  padding: 7px 18px; border: 1px solid var(--border); border-radius: 999px; background: #fff;
+  font-size: 13px; cursor: pointer; color: var(--muted);
+}
+.tab.active { background: var(--primary); border-color: var(--primary); color: #fff; font-weight: 600; }
+.drawer { max-width: 1120px; margin: 14px auto 0; padding: 0 16px; }
+.drawer details {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px;
+}
+.drawer summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--primary-dark); outline: none; }
+.lib-stats { font-size: 12px; color: var(--muted); margin: 8px 0 12px; }
+.lib-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.lib-col h4 { font-size: 13px; margin-bottom: 8px; color: var(--text); }
+.lib-col textarea {
+  width: 100%; min-height: 120px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+  font-size: 13px; font-family: inherit; resize: vertical; outline: none;
+}
+.lib-col textarea:focus { border-color: var(--primary); }
+.lib-col select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+  font-size: 13px; background: #fff; margin: 8px 0;
+}
+.lib-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.lib-row .btn { flex: 1; }
+.mine-list { font-size: 13px; }
+.mine-item {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; margin-bottom: 8px;
+}
+.mine-item .t { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.del-btn { border: none; background: #fee2e2; color: #b91c1c; border-radius: 6px; padding: 3px 10px; font-size: 12px; cursor: pointer; }
+footer { max-width: 1120px; margin: 18px auto 30px; padding: 0 16px; font-size: 12px; color: var(--muted); }
+@media (max-width: 860px) {
+  main { grid-template-columns: 1fr; }
+  .lib-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+</head>
+<body>
+
+<header>
+  <h1>⚡ 一键爆款脚本生成智能体</h1>
+  <p>选模板 → 点按钮 → 出稿子｜爆款框架 100% 保留 · 细节微调改写 · 输出自动过医疗合规与去重</p>
+</header>
+
+<main>
+  <aside class="panel">
+    <h2>① 选择模板分类</h2>
+    <div class="style-cards" id="styleCards"></div>
+    <button class="gen-btn" id="genOne">⚡ 生成 1 条新脚本</button>
+    <button class="gen-btn secondary" id="genThree">📦 批量生成 3 条</button>
+    <p class="hint">商品参数（价格 / 痛点 / 卖点 / 背书）已内置固化，无需填写<br>点击即出稿，改写自动过合规校验</p>
+  </aside>
+
+  <section class="panel">
+    <h2>② 输出区</h2>
+    <div id="result">
+      <div class="empty">
+        <b>选好模板，点左侧按钮就出稿</b>
+        生成结果会自动完成：同义替换改写 → 违禁词替换 → 追加医疗合规提示 → 与原稿库去重校验
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="drawer">
+  <details id="libPanel">
+    <summary>📚 原稿库管理 —— 把你自己看中的爆款稿子加进来（可选）</summary>
+    <p class="lib-stats" id="libStats"></p>
+    <div class="lib-grid">
+      <div class="lib-col">
+        <h4>＋ 新增爆款原稿</h4>
+        <textarea id="newScriptText" placeholder="把你看中的爆款口播稿整段粘贴到这里（一段或分段都可以），智能体会自动拆成「钩子 / 痛点 / 卖点 / 背书 / CTA」五段，加入原稿库后即可参与改写"></textarea>
+        <select id="newScriptCat">
+          <option value="pain">痛点直击型</option>
+          <option value="reverse">效果反差型</option>
+          <option value="scenario">真实场景型</option>
+        </select>
+        <div class="lib-row">
+          <button class="btn primary" id="addScriptBtn">加入原稿库</button>
+          <button class="btn" id="exportBtn">导出我的原稿</button>
+          <button class="btn" id="importBtn">导入原稿</button>
+          <input type="file" id="importFile" accept=".json" hidden>
+        </div>
+      </div>
+      <div class="lib-col">
+        <h4>我加入的原稿（保存于本浏览器，可导出备份）</h4>
+        <div id="mineList"></div>
+      </div>
+    </div>
+  </details>
+</section>
+
+<footer>
+  内置原稿库统计：<span id="footStats"></span> ｜ 智能体为单 HTML 文件，双击打开即用，无需环境与命令行。
+</footer>
+
+<script>
+const DATA = {"pain": {"id": "pain", "name": "痛点直击型", "desc": "症状排比轰炸开场，让人对号入座，直给产品与下单指令。", "originals": [{"title": "肚子大爱放屁", "hook": "肚子大，爱放屁，贴它；口干口苦，嘴巴臭烘烘，贴它；尿黄如茶，一天十几个屁，指甲有竖纹，贴它；胃胀烧心，疲惫乏力，打嗝嗳气，咽喉有异物感，还是贴它。", "pain": "老爱放屁的朋友们，你注意了，这不是别的问题，是肠胃垃圾堆得太多了，垃圾排不出去，光靠平时那点办法根本不够用。", "product": "你就贴这个仲先医肠胃贴，它采用远红外理疗原理，搭配温和草本成分，贴在肚脐穴位上层层渗透，促进肠胃蠕动，帮着把堆积的垃圾排出去。", "trust": "仲先医是正规二类医疗器械认证的国货老牌子，资质备案齐全可查，用着踏实。", "cta": "我说了很多遍了，只有在下方链接下单的才是正品仲先医肠胃贴，别买错了。"}, {"title": "尿黄如茶", "hook": "尿黄如茶，贴它；指甲竖纹一道一道的，怎么剪都还有，贴它；口干口苦，跟人说话自己都嫌味儿大，贴它；胃胀烧心、打嗝嗳气，喉咙里总像卡着个东西，还是贴它。", "pain": "有这些情况的你别不当回事，这不是别的问题，是肠胃垃圾堆得太多了，垃圾排不出去，肠道代谢慢了，身体自然不舒服。", "product": "别再乱花钱乱试了，就贴这个仲先医肠胃贴，睡前贴在肚脐上，睡醒撕下来就行，不用口服，不伤身。", "trust": "仲先医肠胃贴是正规二类医疗器械认证产品，正品有保障，资质齐全可查。", "cta": "只有点下方链接下单的才是正品仲先医肠胃贴，赶紧点击查看详情吧。"}, {"title": "肠胃代谢慢", "hook": "肠胃代谢慢，肚子大，爱放屁，去贴它；口干口苦，嘴巴臭烘烘，贴它；尿黄如茶，指甲有竖纹，贴它；胃胀烧心、疲惫乏力、打嗝嗳气、咽喉有异物感，也去贴它。", "pain": "爱放屁的朋友们要警惕，这是肠胃垃圾过度堆积引起的，垃圾排不出去，仅靠单纯的护胃真的不够了。", "product": "你需要的是一款能清理肠胃的产品，肚子大爱放屁，就贴这个仲先医肠胃贴，草本精华透过穴位层层渗透，给肠道添动力。", "trust": "仲先医肠胃贴是正规二类医疗器械认证的国货老牌子，资质齐全，用着放心。", "cta": "一喝酒吃凉吃辣就拉肚子，经常应酬、三餐不规律的，别再等了，赶紧点下方链接试一试。"}, {"title": "这个就是肠胃不好", "hook": "这个就是肠胃不好，腹胀屁多的人都在找仲先医肠胃贴，你不要多贴，一天贴一次就够了。", "pain": "腹胀频繁放屁的，每天一次；反酸烧心恶心干呕的，每天一次；胃痛胃胀食欲不振、消化不好的，还是每天一次；大便干硬排便费力，又或是吃点凉的辣的就拉肚子的，通通都是每天一次。", "product": "它被称为肠胃的清洁工，小小一贴，远红外技术层层渗透，为肠胃蠕动增添活力，帮着把肠胃垃圾清理出去。", "trust": "它是获批的正规医疗器械认证产品，功效明明白白写在包装上，不像别的产品遮遮掩掩地宣传。", "cta": "用一次为肠胃提供动力，用两次清理肠胃垃圾，用三次维护肠胃平衡，赶紧点下方链接带回家。"}, {"title": "四肢不胖肚子大", "hook": "四肢不胖肚子大，贴它；尿黄爱放屁，贴它；口干口苦，贴它；经常喝酒应酬的贴它，打呼噜流口水的还是贴它。", "pain": "如果你也是肠胃代谢慢、肚子大爱放屁、口干口苦、睡觉流口水、胃胀烧心、疲惫乏力、咽喉有异物感的，那就往下看。", "product": "睡前贴一贴在肚脐的神阙穴上，草本精华透过穴位深层渗透，直达肠胃深处，增强肠胃蠕动，理顺体内气机，让堵浊的气顺畅排出。", "trust": "仲先医深耕肠胃调理领域多年，经过正规医疗器械认证，成分温和不刺激，品质有保障。", "cta": "现在厂家有活动，全都是工厂直发还包邮送到家，赶紧点击视频下方链接查看详情吧。"}, {"title": "千万别多贴", "hook": "千万别多贴，就睡前贴，一天一贴。", "pain": "肠胃代谢慢、肚子胀得圆鼓鼓的，一天一贴；吃点东西就积在肚里、浊气排不出去的，一天一贴；早起口干口苦、肚子闷胀发沉的，一天一贴；腹胀难受、屁多又不通畅的，一天一贴；常年习惯性便秘、大便干结总觉得拉不干净的，还是每天一贴。", "product": "别拿这些不当回事，这其实是肠道给你的信号，肠道蠕动变慢，代谢废物堆在里面排不出去，你真正需要的是一款能正经辅助调理肠道不适的产品，试试这款仲先医肠胃贴就对了。", "trust": "它每一贴都依托远红外理疗原理，搭配温和草本成分，贴在肚脐穴位上层层渗透，是正经二类医疗器械认证的国货老品牌，资质备案齐全可查。", "cta": "用法也省心，睡前贴上睡醒揭掉就行，不耽误日常作息，有需要的朋友赶紧点下方链接了解详情吧。"}]}, "reverse": {"id": "reverse", "name": "效果反差型", "desc": "价格反差、认知反差、反向承诺开场，突出“原来这么便宜/这么省心”。", "originals": [{"title": "不怕你症状重", "hook": "肠胃老毛病反复的人听好了，我不怕你症状重，就怕你好得太快。", "pain": "这次我把仲先医肠胃贴的价格实打实打下来了，有人说这么便宜能有用吗？肚子胀、口气重、排便不通畅，其实都很好调理，找对方法一点不难。", "product": "它是真调理，不是暂时缓解，胀气越严重、便秘越顽固，用它的感受就越明显。每天贴一次，物理热敷深入作用，由内而外辅助调理肠胃不适。", "trust": "正经二类医疗器械认证的产品，用着踏实，官方链接就放视频下方，砍掉所有多余环节，仓库直发到手，正品有保障。", "cta": "之前嫌贵舍不得入手的，这次价格直接打到底，厂家直发一盒也包邮，赶紧点下方链接试试，早用早舒服。"}, {"title": "工厂讲价", "hook": "今天你也知道仲先医的活动，刷到这条视频的朋友们，你们真的算赶上了。", "pain": "有很多朋友会说，这仲先医肠胃贴有点太贵了，放心，我这不是来到工厂了吗？我就把价格给你打下来，单盒到手不到一顿饭的价格。", "product": "咱们这里面采用远红外技术，浓缩了有利肠胃的功效成分，每天贴上一次就行，精华成分直达身体内部，在家躺着就能养护肠胃。", "trust": "每一盒都是仲先医集团的官方出品，有着正规二类医疗器械认证，小包设计，随身携带一点都不麻烦。", "cta": "现在厂家直接打开了线上直销模式，动动手指点击视频下方链接，厂家包邮直接送到家，链接还在就说明活动没结束，赶紧点链接了解一下吧。"}, {"title": "世界上只有两种人", "hook": "世界上只有两种不用肠胃贴的人，一种是不认识肠胃贴的人，一种是不了解肠胃贴能舒缓肠道不适的人。", "pain": "肠道不舒服，怕乱吃药，更怕没找对调理方法，今天我再教你一招。", "product": "仲先医肠胃贴，就是用外用贴敷的方式给肠道做舒缓调理，贴在肚脐穴位上，不用经过肠胃消化，作用直达腹部，省心又省事。", "trust": "仲先医是国货老牌子，适用范围写得明明白白，用于肠胀气、腹胀腹痛和习惯性便秘的辅助治疗，每一贴用料扎实，官方正规生产，资质齐全可查。", "cta": "每天睡前贴一贴，在家就能自己护理，经常被肠胀气、腹胀、便秘困扰的朋友，点下方链接试试看。"}, {"title": "九个都不知道", "hook": "我敢说，十个肠胃不舒服的人里，九个都不知道这个省心法子。", "pain": "肠道反反复复不舒服，不敢随便吃药，试了一堆方法也不见好，今天教你一招简单的。", "product": "仲先医肠胃贴，用外用贴敷的方式温和舒缓肠道，直接贴在肚脐穴位上，不用经过肠胃消化，作用直达腹部，省事又放心。", "trust": "调理肠道认准正规二类医疗器械，比瞎试靠谱得多，仲先医是做了多年的国货老牌子，适用范围标注清晰，每一贴都是真材实料，资质齐全随便查。", "cta": "用法特别简单，每天睡前往肚脐上一贴，在家就能做日常护理，常年被肠胀气、腹胀、便秘折腾的朋友，直接点下方链接就能试试。"}, {"title": "一百多降到两位数", "hook": "别等活动结束、价格贵了才后悔，别再等恢复原价了才后悔。", "pain": "你如果有胃部不适，原本都是一百多一盒的仲先医肠胃贴，现在活动期间只要两位数，听清楚了，只需两位数就可以带回家。", "product": "很多肠胃不适的朋友都开始用起来了，简单方便不刺激，用法就是晚上睡觉前贴，贴够一整晚，第二天再揭掉。", "trust": "它是有二类医疗器械认证的产品，厂家直发，正品有保障，品质看得见。", "cta": "现在厂家有活动，有需要的朋友别等恢复原价了再后悔，链接放在视频下方了，快点击下单带回家吧，明天就能到家。"}, {"title": "价格打到底", "hook": "我把仲先医肠胃贴的价格给打下来了，你说这么便宜肯定是假货？", "pain": "我们就把官方链接放在视频下方了，取消所有多余环节，从仓库直接发货送到您手中，正不正品，收到货一看便知。", "product": "每天一次，通过物理热敷原理，由内而外地辅助肠胃护理，很多人因为便宜刷到就划走，可我想让更多人知道它有多好用。", "trust": "仲先医肠胃贴是正规二类医疗器械认证的国货老牌子，正品有保障，资质齐全可查。", "cta": "以前嫌贵的朋友，这次真的不要再错过了，现在全部厂家直发，一盒也包邮到家，赶紧点击下方链接试试吧。"}]}, "scenario": {"id": "scenario", "name": "真实场景型", "desc": "真实生活场景、对话、求助、幸运感开场，代入感强，适合口播讲故事。", "originals": [{"title": "帮我找一个肚子大的人", "hook": "能不能帮我找一个肚子特别大、怎么减都减不下去的人？就是肠胃特别差的那种，我来帮你改善。", "pain": "如果说肚子大得像皮球，胃胀不消化，还尿黄、屁多，那要怎么做肠胃才会越来越好呢？", "product": "你就记住，每天一贴仲先医肠胃贴，它里面的成分都是对肠胃利好的精华，使用起来非常方便，只需贴在肚脐上，长效养护肠胃。", "trust": "不要瞧不起这个便宜的老国货，已经有很多肠胃问题的朋友都用起来了，效果怎么样我说了不算，大家用了再来评论，大家说好才是真的好。", "cta": "购买链接我就放在视频下方了，赶紧点击查看详情吧。"}, {"title": "你真的很幸运", "hook": "你真的很幸运，这个时候竟然能刷到我，如果说你想要肠道通畅、排便省心，那你一定要看完这个视频。", "pain": "再顽固的老便秘也怕这个东西，好几年都没有这么顺畅过，我跟风入手尝试，效果真的超出预期。", "product": "这个叫仲先医肠胃贴，是肠道淤堵便秘害怕的东西，贴于肚脐，再顽固的宿便淤堵它都能慢慢疏通，堪称肠道疏通帮手。", "trust": "如果贴完排便没有改善，用着不满意都可以退，好产品就这样正面接受一切质疑，就是因为真金不怕火炼。", "cta": "如果说你有便秘困扰，完全没有必要再继续受折磨了，点击视频下方的链接买回去试试。"}, {"title": "你肠胃是铁做的吗", "hook": "肠胃垃圾堆成这样还不调理，你肠胃是铁做的吗？", "pain": "肚子胀多是肠胃垃圾淤积，嘴巴臭常因为宿便堆积，睡不好往往跟脾胃不和、胃气上逆有关。很多人纳闷，明明没吃多少东西，为啥肚子胀得像鼓？其实这是肠胃代谢慢、垃圾排不出去的典型表现。", "product": "这个时候不妨试试仲先医肠胃贴，别看它小小的一贴，作用可不小。草本养胃精华透过肚脐神阙穴层层渗透，直达肠胃深处，能疏通淤堵、促进肠胃蠕动，帮着把堆积的垃圾排出去，同时补脾健胃、养护肠胃黏膜。", "trust": "它遵循传统穴位调理思路，不用口服、不伤肠胃，还是正规二类医疗器械认证的国货老牌子，资质齐全可查，品质有保障。", "cta": "你的肠胃问题拖了多久了？听我一句劝，别再走弯路了，赶紧点击下方官方链接试试吧。"}, {"title": "反复腹胀便秘", "hook": "反复腹胀便秘，其实就是肠胃有瘀滞，这个现象多数是因为腹部的气血循环出了问题。", "pain": "普通的通便消食产品并不能从根源改善胃肠循环问题，如果说你每天摸着肚子自己都发愁，那你不要再浪费钱了。", "product": "赶紧来试试这个仲先医肠胃贴，通过体表作用促进局部血液循环，专为肠胀气、腹胀腹痛、习惯性便秘的人群推出，帮助改善循环不畅带来的腹部不适。", "trust": "常言道，无淤堵则胃肠安，仲先医肠胃贴可用于上述症状的辅助治疗，是正规二类医疗器械认证产品。", "cta": "肠胃不适一定要尽早干预护理，点击这个视频的下方链接，赶紧看看吧。"}, {"title": "不是常年便秘的你别用啊", "hook": "不是常年便秘的你别用啊，不是口苦口臭的你别用，不是尿黄如茶、一天十几个屁的你别用。", "pain": "如果说你已经受够了被便秘问题一直折腾，想要找一个品质放心、价格也合适的产品，那你试试这款仲先医肠胃贴。", "product": "好几天不排一次便的，贴它；积食胀气、腹胀烧心的，贴它；肚子大爱放屁的，贴它；食欲不振、咽喉有异物感的，也贴它。它内含多种护肠养胃成分，只需睡前往肚脐穴位贴上一贴。", "trust": "它可是我们沿用多年的产品，今年推广到线上销售，品质没得说，只要是肠胃有一丁点不舒服的，都用仲先医肠胃贴，它就是这么硬气。", "cta": "先买回去试一试也不吃亏，正在被便秘问题困扰的，抓紧时间点击下方链接查看详情吧。"}, {"title": "好不好用你去试试", "hook": "好不好用，你去试试就知道了。", "pain": "尿黄如茶的，贴它；口干口苦口臭的，也去贴它；你可别一天贴两三次，一天贴一次就够了，因为它太猛了。", "product": "这个仲先医肠胃贴有十几种名贵护胃精华，经过九蒸九制的高倍萃取，一天一贴，自己的肠胃什么变化，你自己就知道。", "trust": "现在联合厂家开通了线上直发渠道，今天到手都是厂家的直发价，正品有保障。", "cta": "卖完就要恢复原价，数量有限，抓紧点击下方链接抢购吧。"}, {"title": "一受凉胃就疼", "hook": "唉，最近我这胃真是闹心，一受凉就疼，吃点东西就胀，你有没有啥好用的办法？", "pain": "那你可得试试这个仲先医肠胃贴，像你说的一受凉就胃痛、吃点就胃胀、胃里寒湿重、嗓子有痰长期咳不出的情况都能用。", "product": "一点不麻烦，每天睡前贴一贴就行，可别多贴哦。这里面浓缩了多重养胃护胃精华成分，透过穴位作用层层渗透，汲取传统中医智慧与现代工艺改良升级而来，在家就能自己调理。", "trust": "仲先医是国货老牌子，品质值得信赖，还是正规医疗器械认证的肠胃贴，属于二类医疗器械，每一贴都能补脾健胃、养护胃粘膜，每一盒都是官方生产的正规产品。", "cta": "品牌方现在开通了线上直购通道，而且厂家有活动，点击视频下方链接就能下单，赶紧点击下方链接查看吧。"}]}, "rules": {"banned_words": [{"id": "ads_absolute", "scope": "all", "pattern": "最(好|佳|低|高|大|强|优|先进|新款|新|多|快)|国家级|世界级|顶级|首选|唯一|第一|全网最低|史上最|绝无仅有|销量第一", "severity": "high", "message": "广告法绝对化用语，涉嫌虚假宣传", "suggestion": "删除或替换为可验证的客观表述"}, {"id": "medical_cure", "scope": "medical", "pattern": "根治|治愈|痊愈|药到病除|断根|包治|彻底根治|永不复发|一贴见效|三天见效|当天见效|100%有效|百分百有效|无副作用|纯天然无添加|医院推荐|医生都说好|专家推荐", "severity": "high", "message": "医疗功效夸大宣传，普通用品不得宣称治疗功效", "suggestion": "改为「缓解」「改善」「调理」等合规表述"}, {"id": "medical_absolute", "scope": "medical", "pattern": "包治百病|药到病除|一次根治|永不再犯|告别所有|任何人群都适用", "severity": "high", "message": "医疗类绝对化承诺，涉嫌违反广告法", "suggestion": "改为「多数人群适用」「有助于缓解」等表述"}, {"id": "common_exaggeration", "scope": "all", "pattern": "保证有效|保证不反弹|无效退款百分之|躺着瘦|一夜暴富|稳赚不赔", "severity": "medium", "message": "夸大承诺类表述，容易引发投诉", "suggestion": "改为「大概率」「多数情况下」等谨慎表述"}], "auto_fix": {"根治": "缓解", "治愈": "改善", "痊愈": "改善", "药到病除": "缓解不适", "断根": "改善", "彻底": "有效", "一贴见效": "温和调理", "三天见效": "坚持使用改善", "当天见效": "坚持使用改善", "永不复发": "长期坚持调理", "100%有效": "多数用户反馈有效", "百分百有效": "多数用户反馈有效", "无副作用": "成分温和", "纯天然无添加": "成分温和", "医院推荐": "经过专业机构备案", "医生都说好": "获得专业认可", "专家推荐": "获得专业认可", "包治百病": "有助于日常调理", "一次根治": "坚持使用改善", "永不再犯": "长期坚持调理", "告别所有": "缓解大部分", "任何人群都适用": "多数人群适用", "保证有效": "多数用户反馈有效", "保证不反弹": "效果因人而异", "最快": "很快", "第一种是": "一种是", "第二种是": "另一种是"}, "required_disclaimers": {"medical": ["本品为日常用品，不能代替药物，如有不适请及时就医", "效果因人而异，请按说明使用"]}}};
+const ORIGINAL_SCRIPTS = { pain: DATA.pain, reverse: DATA.reverse, scenario: DATA.scenario };
+const RULE_DATA = DATA.rules;
+const FIXED_PRODUCT = { name: "仲先医肠胃贴", category: "医疗保健", priceText: "两位数", brand: "仲先医", medical: true };
+
+const MODULE_ORDER = ["hook", "pain", "product", "trust", "cta"];
+const MODULE_LABELS = { hook: "① 开头钩子", pain: "② 痛点场景", product: "③ 产品卖点", trust: "④ 信任背书", cta: "⑤ 结尾 CTA" };
+const HISTORY = [];
+const LS_KEY = "zxs_rewriter_extra_v1";
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function maybe(p) { return Math.random() < p; }
+function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
+/* ============ 原稿库（内置 + 用户新增） ============ */
+function loadExtra() {
+  if (typeof localStorage === "undefined") return {};
+  try { const v = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); return v && typeof v === "object" ? v : {}; } catch (e) { return {}; }
+}
+function saveExtra(extra) {
+  if (typeof localStorage === "undefined") return;
+  try { localStorage.setItem(LS_KEY, JSON.stringify(extra)); } catch (e) {}
+}
+function getOriginals(catId) {
+  const builtin = (ORIGINAL_SCRIPTS[catId] && ORIGINAL_SCRIPTS[catId].originals) || [];
+  const extra = loadExtra()[catId] || [];
+  return builtin.concat(extra);
+}
+function getCounts() {
+  const c = {};
+  for (const id of Object.keys(ORIGINAL_SCRIPTS)) c[id] = getOriginals(id).length;
+  return c;
+}
+
+/* ============ 方案 A：轻量改写（同义替换 / 语序与语气微调 / 长短句处理） ============ */
+const SYNONYM_MAP = {
+  "肚子大": ["肚子鼓鼓的", "肚子圆鼓鼓", "肚子发胀", "肚子像皮球"],
+  "爱放屁": ["放屁多", "屁多", "排气多", "总爱放屁"],
+  "口干口苦": ["口苦口干", "早起口干口苦", "嘴巴干苦"],
+  "嘴巴臭烘烘": ["嘴里有味", "口气重", "嘴巴有异味", "口臭明显"],
+  "尿黄如茶": ["小便发黄", "尿黄", "尿液发黄"],
+  "指甲有竖纹": ["指甲长竖纹", "指甲竖纹一道一道", "指甲上全是竖纹"],
+  "反酸烧心": ["烧心反酸", "反酸、烧心", "烧心难受"],
+  "打嗝嗳气": ["嗳气打嗝", "总打嗝嗳气", "打嗝不断"],
+  "咽喉有异物感": ["喉咙总像卡东西", "咽喉异物感", "喉咙有异物感"],
+  "腹胀": ["肚子胀", "腹部发胀", "肚胀"],
+  "便秘": ["排便困难", "大便不畅", "排便费劲"],
+  "大便干结": ["大便干硬", "大便又干又硬", "大便干得像羊粪蛋"],
+  "拉不干净": ["总觉得排不净", "排不干净", "拉了还想拉"],
+  "肠胃代谢慢": ["肠道代谢慢", "肠胃蠕动慢", "肠胃代谢变慢"],
+  "肠胃垃圾": ["肠道垃圾", "肠胃堆积的垃圾"],
+  "排不出去": ["排不出来", "堵在里面", "出不去"],
+  "睡前贴": ["睡前一贴", "晚上贴一贴", "睡前贴上"],
+  "肚脐": ["肚脐眼", "肚脐位置", "神阙穴"],
+  "层层渗透": ["层层渗透吸收", "一层层渗透", "渗透进穴位"],
+  "远红外": ["远红外理疗", "远红外技术"],
+  "二类医疗器械": ["正规医疗器械", "二类医疗器械认证"],
+  "资质齐全可查": ["资质备案齐全", "资质可查", "备案齐全"],
+  "国货老牌子": ["老国货品牌", "国货老品牌", "老牌子国货"],
+  "厂家直发": ["工厂直发", "仓库直发", "源头直发"],
+  "点击下方链接": ["点下方链接", "点击视频下方链接", "点开下方链接"],
+  "赶紧": ["抓紧", "赶快", "趁早"],
+  "试一试": ["试一下", "试试看", "试了就知道"],
+  "一天一贴": ["每天一贴", "每天贴一贴", "一日一贴"],
+  "温和草本成分": ["温和草本精华", "草本养胃成分"],
+  "促进肠胃蠕动": ["给肠胃添动力", "帮助肠道蠕动", "增强肠胃蠕动"],
+  "正品有保障": ["品质有保障", "正品放心", "品质看得见"]
+};
+
+function applySynonyms(text) {
+  const entries = Object.entries(SYNONYM_MAP).sort((a, b) => b[0].length - a[0].length);
+  const re = new RegExp(entries.map(function (e) { return e[0].replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }).join("|"), "g");
+  const map = new Map(entries);
+  return text.replace(re, function (m) {
+    if (!maybe(0.6)) return m;
+    const opts = (map.get(m) || []).filter(function (x) { return x !== m; });
+    return opts.length ? opts[Math.floor(Math.random() * opts.length)] : m;
+  });
+}
+
+function splitLongSentences(text) {
+  const sents = text.match(/[^。！？!?\n]+[。！？!?]?/g) || [text];
+  return sents.map(function (s) {
+    if (s.length >= 22 && s.includes("，") && maybe(0.55)) {
+      const pos = [];
+      for (let i = 0; i < s.length; i++) if (s[i] === "，") pos.push(i);
+      const mids = pos.filter(function (p) { return p >= s.length * 0.35 && p <= s.length * 0.72; });
+      if (mids.length) {
+        const at = mids[Math.floor(Math.random() * mids.length)];
+        return s.slice(0, at) + "。" + s.slice(at + 1);
+      }
+    }
+    return s;
+  }).join("");
+}
+
+function mergeShortSentences(text) {
+  const sents = text.match(/[^。！？!?\n]+[。！？!?]/g) || [];
+  if (sents.length < 2) return text;
+  const out = [];
+  for (let i = 0; i < sents.length; i++) {
+    const s = sents[i];
+    const n = sents[i + 1];
+    if (n && s.length < 12 && n.length < 12 && maybe(0.4)) {
+      out.push(s.replace(/[。！？!?]$/, "") + "，" + n);
+      i++;
+    } else out.push(s);
+  }
+  return out.join("");
+}
+
+function adjustTone(text, isHook) {
+  let t = text;
+  const pairs = [
+    ["，你", "，你啊"], ["。你", "。你啊"],
+    ["其实是", "说白了就是"], ["其实", "讲真"],
+    ["真的", "确实"], ["非常", "特别"],
+    ["就行", "就行了"], ["就够了", "就足够了"]
+  ];
+  for (const pr of pairs) {
+    if (t.includes(pr[0]) && maybe(0.4)) t = t.split(pr[0]).join(pr[1]);
+  }
+  if (maybe(0.3)) t = t.replace("了。", "了啊。");
+  if (isHook && maybe(0.3)) t = pick(["我跟你说，", "你听我说，", "划走你就亏了，", "注意听，"]) + t;
+  return t;
+}
+
+function lightRewriteModule(text, isHook) {
+  let t = String(text || "").trim();
+  if (!t) return t;
+  t = applySynonyms(t);
+  if (maybe(0.5)) t = splitLongSentences(t);
+  if (maybe(0.3)) t = mergeShortSentences(t);
+  if (maybe(0.6)) t = adjustTone(t, isHook);
+  return t.trim();
+}
+
+/* ============ 合规校验（原有引擎：违禁词检测 + 自动替换 + 追加提示语） ============ */
+function checkCompliance(text, medical) {
+  const issues = [];
+  for (const rule of RULE_DATA.banned_words) {
+    if (rule.scope === "medical" && !medical) continue;
+    const re = new RegExp(rule.pattern, "g");
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      issues.push({ rule_id: rule.id, word: m[0], message: rule.message, severity: rule.severity, suggestion: rule.suggestion });
+    }
+  }
+  return issues;
+}
+
+function fixText(text, medical) {
+  const replaced = [];
+  let fixed = text;
+  const entries = Object.entries(RULE_DATA.auto_fix).sort((a, b) => b[0].length - a[0].length);
+  for (const pr of entries) {
+    const word = pr[0], repl = pr[1];
+    if (word && repl && fixed.includes(word)) {
+      fixed = fixed.split(word).join(repl);
+      replaced.push({ word: word, to: repl });
+    }
+  }
+  return { text: fixed, remaining: checkCompliance(fixed, medical), replaced: replaced };
+}
+
+function compliancePipeline(body) {
+  const r = fixText(body, true);
+  const disclaimers = (RULE_DATA.required_disclaimers.medical || []).map(function (d) { return "（合规提示）" + d; });
+  const text = r.text + (disclaimers.length ? "\n\n" + disclaimers.join("\n") : "");
+  const remaining = checkCompliance(text, true);
+  return { body: r.text, text: text, replaced: r.replaced, remaining: remaining, disclaimers: disclaimers, passed: remaining.length === 0 };
+}
+
+/* ============ 方案 B：模块拼接（框架 100% 保留）+ 去重校验 ============ */
+function normText(s) { return String(s).replace(/[\s\p{P}\p{S}]/gu, ""); }
+function ngramSet(s, n) {
+  const set = new Set();
+  const t = normText(s);
+  for (let i = 0; i + n <= t.length; i++) set.add(t.slice(i, i + n));
+  return set;
+}
+function coverage(a, b) {
+  const ga = ngramSet(a, 4), gb = ngramSet(b, 4);
+  if (!ga.size) return 0;
+  let hit = 0;
+  for (const g of ga) if (gb.has(g)) hit++;
+  return hit / ga.size;
+}
+function maxCoverage(body, catId) {
+  const refs = getOriginals(catId).map(function (o) { return [o.hook, o.pain, o.product, o.trust, o.cta].join(""); })
+    .concat(HISTORY);
+  let max = 0;
+  for (const r of refs) { const c = coverage(body, r); if (c > max) max = c; }
+  return max;
+}
+
+function buildPools(catId) {
+  const list = getOriginals(catId);
+  const pools = {};
+  for (const key of MODULE_ORDER) pools[key] = [];
+  for (const o of list) {
+    for (const key of MODULE_ORDER) pools[key].push({ text: o[key] || "", src: o.title || "原稿" });
+  }
+  return pools;
+}
+
+function generateOne(catId) {
+  const pools = buildPools(catId);
+  const list = getOriginals(catId);
+  let best = null;
+  for (let attempt = 0; attempt < 14; attempt++) {
+    const sel = {};
+    for (const key of MODULE_ORDER) sel[key] = pick(pools[key]);
+    const srcSet = new Set(MODULE_ORDER.map(function (k) { return sel[k].src; }));
+    if (srcSet.size === 1 && list.length > 1) continue;
+    const rew = {};
+    let body = "";
+    for (const key of MODULE_ORDER) {
+      rew[key] = lightRewriteModule(sel[key].text, key === "hook");
+      body += rew[key] + "\n\n";
+    }
+    body = body.trim();
+    if (!body.includes(FIXED_PRODUCT.name)) {
+      rew.product = "这个" + FIXED_PRODUCT.name + "，" + rew.product;
+      body = rew.hook + "\n\n" + rew.pain + "\n\n" + rew.product + "\n\n" + rew.trust + "\n\n" + rew.cta;
+    }
+    const comp = compliancePipeline(body);
+    const cov = maxCoverage(comp.body, catId);
+    const cand = { modules: rew, body: comp.body, text: comp.text, comp: comp, cov: cov, sources: Array.from(srcSet) };
+    if (!best || cov < best.cov) best = cand;
+    if (cov <= 0.6) {
+      HISTORY.push(comp.body);
+      if (HISTORY.length > 14) HISTORY.shift();
+      return cand;
+    }
+  }
+  HISTORY.push(best.body);
+  if (HISTORY.length > 14) HISTORY.shift();
+  return best;
+}
+
+function generateBatch(catId, n) {
+  const out = [];
+  for (let i = 0; i < n; i++) out.push(generateOne(catId));
+  return out;
+}
+
+/* ============ 新增原稿解析（自动拆五段） ============ */
+const KW_CTA = /链接|下单|购买|点击|带回家|抢购|详情|包邮|发货|恢复原价|直发|活动价|优惠/;
+const KW_TRUST = /认证|医疗器械|资质|备案|国货|老牌|正规|官方|正品|品质|保障|集团|批准/;
+const KW_PRODUCT = /贴|肚脐|神阙|精华|远红外|渗透|成分|穴位|睡前|用法|养胃|护胃|草本|调理|蠕动|作用|辅助|缓解|舒缓/;
+const KW_PAIN = /胀|便秘|屁|口臭|口苦|口干|尿黄|竖纹|烧心|打嗝|嗳气|反酸|拉不出|拉不干净|流口水|头油|掉发|发痒|肚子大|鼓胀|乏力|疲惫/;
+
+function splitSentences(text) {
+  const out = [];
+  const lines = String(text).replace(/\r/g, "").split(/\n+/).map(function (s) { return s.trim(); }).filter(Boolean);
+  for (const line of lines) {
+    const segs = line.match(/[^。！？!?；;]+[。！？!?；;]?/g) || [];
+    for (const s of segs) { const t = s.trim(); if (t.length >= 2) out.push(t); }
+  }
+  return out;
+}
+
+function parseScriptToModules(raw) {
+  const sents = splitSentences(raw);
+  const mods = { hook: "", pain: "", product: "", trust: "", cta: "" };
+  if (!sents.length) return mods;
+  mods.hook = sents.shift();
+  const lists = { cta: [], trust: [], product: [], pain: [] };
+  const other = [];
+  for (const s of sents) {
+    if (KW_CTA.test(s)) lists.cta.push(s);
+    else if (KW_TRUST.test(s)) lists.trust.push(s);
+    else if (KW_PAIN.test(s)) lists.pain.push(s);
+    else if (KW_PRODUCT.test(s)) lists.product.push(s);
+    else other.push(s);
+  }
+  mods.cta = lists.cta.join("");
+  mods.trust = lists.trust.join("");
+  mods.product = lists.product.join("");
+  mods.pain = lists.pain.concat(other).join("");
+  for (const key of ["pain", "product", "trust", "cta"]) {
+    if (!mods[key]) {
+      const fallback = MODULE_ORDER.filter(function (k) { return k !== key && mods[k]; }).map(function (k) { return mods[k]; });
+      mods[key] = fallback.length ? fallback[fallback.length - 1] : "肠胃不舒服的朋友，都可以试试。";
+    }
+  }
+  return mods;
+}
+
+/* ============ UI 层（仅浏览器环境执行） ============ */
+if (typeof document !== "undefined") {
+  const $ = function (id) { return document.getElementById(id); };
+  let currentCat = "pain";
+  let currentResults = [];
+  let currentIdx = 0;
+  let currentCatName = "痛点直击型";
+
+  function catName(id) { return (ORIGINAL_SCRIPTS[id] && ORIGINAL_SCRIPTS[id].name) || id; }
+
+  function refreshCounts() {
+    const c = getCounts();
+    const cardMap = {
+      pain: { t: "痛点直击型", d: "症状排比轰炸，让人对号入座，直给产品与下单指令" },
+      reverse: { t: "效果反差型", d: "价格反差 / 认知反差 / 反向承诺开场，突出“便宜又省心”" },
+      scenario: { t: "真实场景型", d: "真实生活场景、对话、求助、幸运感开场，代入感强" }
+    };
+    $("styleCards").innerHTML = Object.keys(cardMap).map(function (id) {
+      return '<div class="style-card' + (id === currentCat ? " active" : "") + '" data-cat="' + id + '">' +
+        '<div class="t">' + cardMap[id].t + "</div>" +
+        '<div class="d">' + cardMap[id].d + "</div>" +
+        '<span class="cnt">' + c[id] + " 篇原稿</span></div>";
+    }).join("");
+    document.querySelectorAll("#styleCards .style-card").forEach(function (card) {
+      card.addEventListener("click", function () {
+        currentCat = card.dataset.cat;
+        currentCatName = catName(currentCat);
+        document.querySelectorAll("#styleCards .style-card").forEach(function (x) { x.classList.remove("active"); });
+        card.classList.add("active");
+      });
+    });
+    const mine = Object.values(loadExtra()).reduce(function (n, arr) { return n + (arr ? arr.length : 0); }, 0);
+    $("libStats").textContent = "内置原稿库：痛点直击型 " + c.pain + " 篇 ｜ 效果反差型 " + c.reverse + " 篇 ｜ 真实场景型 " + c.scenario + " 篇 ｜ 我加入的稿子 " + mine + " 篇（保存在本浏览器）";
+    $("footStats").textContent = "痛点直击型 " + c.pain + " 篇 · 效果反差型 " + c.reverse + " 篇 · 真实场景型 " + c.scenario + " 篇" + (mine ? " · 我的原稿 " + mine + " 篇" : "");
+    renderMineList();
+  }
+
+  function renderMineList() {
+    const extra = loadExtra();
+    let html = "";
+    for (const id of Object.keys(ORIGINAL_SCRIPTS)) {
+      const arr = extra[id] || [];
+      if (!arr.length) continue;
+      html += '<div style="font-size:12px;color:var(--muted);margin:6px 0 4px;">『' + catName(id) + "』</div>";
+      arr.forEach(function (item, i) {
+        html += '<div class="mine-item"><span class="t">' + esc(item.title) + '</span>' +
+          '<button class="del-btn" data-del="' + id + ":" + i + '">删除</button></div>';
+      });
+    }
+    if (!html) html = '<div style="font-size:13px;color:var(--muted);">还没有加入的稿子。把爆款口播稿粘贴到左边，选好分类，点「加入原稿库」即可。</div>';
+    $("mineList").innerHTML = html;
+    document.querySelectorAll("#mineList .del-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const parts = btn.dataset.del.split(":");
+        const extra2 = loadExtra();
+        if (extra2[parts[0]]) { extra2[parts[0]].splice(parseInt(parts[1], 10), 1); saveExtra(extra2); refreshCounts(); showToast("已删除"); }
+      });
+    });
+  }
+
+  function addScript() {
+    const raw = $("newScriptText").value.trim();
+    const cat = $("newScriptCat").value;
+    if (!raw) { alert("请先粘贴你的爆款稿子"); return; }
+    const mods = parseScriptToModules(raw);
+    const extra = loadExtra();
+    extra[cat] = extra[cat] || [];
+    const title = mods.hook.slice(0, 12) + (mods.hook.length > 12 ? "…" : "");
+    extra[cat].push({ title: title, hook: mods.hook, pain: mods.pain, product: mods.product, trust: mods.trust, cta: mods.cta, ts: Date.now() });
+    saveExtra(extra);
+    $("newScriptText").value = "";
+    refreshCounts();
+    showToast("✅ 已加入「" + catName(cat) + "」原稿库，可立即参与改写");
+  }
+
+  function exportExtra() {
+    const extra = loadExtra();
+    download(JSON.stringify(extra, null, 2), "我的原稿库.json");
+  }
+
+  function importExtra(file) {
+    const reader = new FileReader();
+    reader.onload = function () {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!data || typeof data !== "object") throw new Error("bad");
+        saveExtra(data);
+        refreshCounts();
+        showToast("✅ 导入成功");
+      } catch (e) { alert("导入失败：请选择之前导出的「我的原稿库.json」文件"); }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ---------- 渲染 ---------- */
+  function scriptCard(r, idx) {
+    const c = r.comp;
+    const badge = c.passed
+      ? '<span class="badge ok">✅ 合规通过（0 个问题）</span>'
+      : '<span class="badge warn">⚠️ ' + c.remaining.length + " 个合规问题</span>";
+    const pct = Math.round(r.cov * 100);
+    const covState = r.cov <= 0.6 ? "ok-text" : "warn-text";
+    const replacedHtml = c.replaced.length
+      ? '<p class="disc">✏️ 自动合规修正：' + c.replaced.map(function (x) { return "「" + esc(x.word) + "」→「" + esc(x.to) + "」"; }).join("；") + "</p>"
+      : "";
+    const issueHtml = c.remaining.length
+      ? '<ul class="issue-list">' + c.remaining.map(function (i) { return "<li>【" + esc(i.severity) + "】「" + esc(i.word) + "」" + esc(i.message) + "</li>"; }).join("") + "</ul>"
+      : "";
+    const discHtml = c.disclaimers.length
+      ? '<p class="disc">📌 合规提示：' + c.disclaimers.map(esc).join("；") + "</p>"
+      : "";
+    const modHtml = MODULE_ORDER.map(function (k) {
+      return '<div class="mod"><span class="mod-tag">' + MODULE_LABELS[k] + "</span>" + esc(r.modules[k]) + "</div>";
+    }).join("");
+    return '<div class="script-title">方案 ' + (idx + 1) + " · " + esc(currentCatName) + " · 仲先医肠胃贴</div>" +
+      '<div class="script-meta">🔄 改写来源：' + esc(r.sources.join("、")) +
+      ' ｜ <span class="' + covState + '">与原稿库/历史稿件最高重复率 ' + pct + '%（阈值 ≤60%）</span></div>' +
+      '<div class="block"><h3>📄 完整口播文案（可直接使用）</h3><div class="voiceover">' + esc(r.text) + "</div></div>" +
+      '<div class="block"><h3>🧩 爆款框架（100% 保留）</h3>' + modHtml + "</div>" +
+      '<div class="block"><h3>🛡 合规结果</h3>' + badge + replacedHtml + issueHtml + discHtml + "</div>" +
+      '<div class="btn-row">' +
+      '<button class="btn primary" data-action="copy-voice">📋 复制口播文案</button>' +
+      '<button class="btn" data-action="copy-all">📋 复制完整结果</button>' +
+      '<button class="btn" data-action="dl-md">⬇ 下载 .md</button>' +
+      "</div>";
+  }
+
+  function renderResults(list) {
+    currentResults = list;
+    currentIdx = 0;
+    if (!list.length) return;
+    if (list.length === 1) {
+      $("result").innerHTML = scriptCard(list[0], 0);
+    } else {
+      const tabs = list.map(function (_, i) {
+        return '<button class="tab' + (i === 0 ? " active" : "") + '" data-tab="' + i + '">方案 ' + (i + 1) + "</button>";
+      }).join("");
+      $("result").innerHTML = '<div class="tabs">' + tabs + '</div><div id="cardSlot"></div>';
+      $("cardSlot").innerHTML = scriptCard(list[0], 0);
+    }
+  }
+
+  function bindResultEvents() {
+    $("result").addEventListener("click", function (e) {
+      const tab = e.target.closest(".tab");
+      if (tab) {
+        const i = parseInt(tab.dataset.tab, 10);
+        currentIdx = i;
+        $("cardSlot").innerHTML = scriptCard(currentResults[i], i);
+        document.querySelectorAll("#result .tab").forEach(function (t, idx) { t.classList.toggle("active", idx === i); });
+        return;
+      }
+      const btn = e.target.closest("[data-action]");
+      if (!btn) return;
+      const r = currentResults[currentIdx];
+      if (!r) return;
+      const action = btn.dataset.action;
+      if (action === "copy-voice") copyText(r.text);
+      else if (action === "copy-all") copyText(markdownOf(r));
+      else if (action === "dl-md") download(markdownOf(r), "爆款脚本-" + currentCatName + "-" + Date.now() + ".md");
+    });
+  }
+
+  function markdownOf(r) {
+    const c = r.comp;
+    let md = "# " + currentCatName + " · 仲先医肠胃贴\n\n";
+    md += "- 改写来源：" + r.sources.join("、") + "\n- 与原稿库最高重复率：" + Math.round(r.cov * 100) + "%（阈值 ≤60%）\n\n";
+    md += "## 完整口播文案\n\n" + r.text + "\n\n";
+    md += "## 爆款框架\n\n";
+    MODULE_ORDER.forEach(function (k) { md += "- " + MODULE_LABELS[k] + "：" + r.modules[k] + "\n"; });
+    md += "\n## 合规结果\n\n" + (c.passed ? "✅ 通过" : "⚠️ " + c.remaining.length + " 个问题") + "\n";
+    c.replaced.forEach(function (x) { md += "- 自动修正：「" + x.word + "」→「" + x.to + "」\n"; });
+    c.disclaimers.forEach(function (d) { md += "- 合规提示：" + d + "\n"; });
+    return md;
+  }
+
+  function copyText(text) {
+    const done = function () { showToast("已复制到剪贴板"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(function () { fallbackCopy(text, done); });
+    } else fallbackCopy(text, done);
+  }
+  function fallbackCopy(text, done) {
+    const ta = document.createElement("textarea");
+    ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) { alert("复制失败，请手动选择复制"); }
+    document.body.removeChild(ta);
+  }
+  function download(text, filename) {
+    const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  let toastTimer = null;
+  function showToast(msg) {
+    let el = document.getElementById("toast");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "toast";
+      el.style.cssText = "position:fixed;left:50%;bottom:36px;transform:translateX(-50%);background:#1c2733;color:#fff;padding:10px 22px;border-radius:999px;font-size:14px;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2);";
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.display = "block";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.style.display = "none"; }, 1600);
+  }
+
+  /* ---------- 事件绑定 ---------- */
+  $("genOne").addEventListener("click", function () {
+    renderResults([generateOne(currentCat)]);
+  });
+  $("genThree").addEventListener("click", function () {
+    renderResults(generateBatch(currentCat, 3));
+  });
+  $("addScriptBtn").addEventListener("click", addScript);
+  $("exportBtn").addEventListener("click", exportExtra);
+  $("importBtn").addEventListener("click", function () { $("importFile").click(); });
+  $("importFile").addEventListener("change", function (e) {
+    if (e.target.files && e.target.files[0]) importExtra(e.target.files[0]);
+    e.target.value = "";
+  });
+  bindResultEvents();
+  refreshCounts();
+}
+</script>
+</body>
+</html>
