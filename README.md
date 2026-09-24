@@ -1,5 +1,13 @@
 # 电商短视频爆款脚本生成智能体（千川带货版）
 
+<div align="center">
+
+[![在线试用](https://img.shields.io/badge/在线试用-点开即用-4f6df5?style=for-the-badge)](https://jin2004-cmd.github.io/ecom-script-agent/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b?style=for-the-badge)](LICENSE)
+[![零依赖](https://img.shields.io/badge/网页版-单HTML零依赖-22c55e?style=for-the-badge)](#一网页版一键出稿推荐开箱即用)
+
+</div>
+
 > 这个项目是被真实需求逼出来的：我在做 AI 内容运营实习时，团队一天要出十几条千川带货脚本，条条得过广告法，纯手写又慢又容易踩词。我就自己搭了这个 Agent——选模板、点按钮一键出稿，爆款框架保留、细节自动改写，出稿自动过合规校验。
 >
 > 🟢 **[在线试用（点开即用，不用装任何东西）](https://jin2004-cmd.github.io/ecom-script-agent/)** ｜ [一键出稿版](https://jin2004-cmd.github.io/ecom-script-agent/电商爆款脚本生成智能体-一键出稿版.html)
@@ -174,3 +182,19 @@ python -m unittest discover -s tests -v
 - [ ] 接入素材库联动（脚本 → 画面提示词 → 出图/出片）
 - [ ] 更多行业合规规则包（美妆/食品/服饰）
 - [ ] A/B 效果数据回流，自动迭代模板库
+
+---
+
+## English
+
+**E-commerce Viral Script Agent (Qianchuan Ads Edition)** — born from a real internship problem: a content team needed 10+ compliant short-video sales scripts per day. The agent bundles a library of 19 real viral scripts, a five-part template system, and a local compliance engine (China Ad-Law absolute-claim detection + mandatory medical-category checks + auto-rewrite). Ships as a zero-dependency single-HTML web app (double-click to use, no install), plus an optional Python CLI with an LLM mode (OpenAI-compatible API) whose output is still force-checked by the local compliance engine — the model writes, the rules block. 27 unit tests included.
+
+👉 Live demo: <https://jin2004-cmd.github.io/ecom-script-agent/>
+
+---
+
+<div align="center">
+
+如果这个思路对你有用，欢迎 ⭐ **Star** 一下——「模型负责写，规则负责拦」值得被更多做 AI 内容的人看到。
+
+</div>
