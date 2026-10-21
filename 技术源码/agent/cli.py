@@ -55,6 +55,7 @@ def cmd_generate(args: argparse.Namespace) -> int:
             api_key=args.api_key,
             base_url=args.base_url,
             model=args.model,
+            auto_fix=not args.no_fix,
         )
     out_dir = Path(args.out)
     formats = tuple(f.strip() for f in args.formats.split(",") if f.strip())

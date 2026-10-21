@@ -12,7 +12,7 @@
 >
 > 🟢 **[在线试用（点开即用，不用装任何东西）](https://jin2004-cmd.github.io/ecom-script-agent/)** ｜ [一键出稿版](https://jin2004-cmd.github.io/ecom-script-agent/电商爆款脚本生成智能体-一键出稿版.html)
 >
-> 📂 源码：`技术源码/agent/`（Python 包，9 个模块）· `技术源码/tests/`（4 个测试文件）· `data/`（原稿库 / 模板 / 合规规则）· `examples/`（HTML/CSV/JSON/Markdown 四格式导出示例）
+> 📂 源码：`技术源码/agent/`（Python 包，9 个模块）· `技术源码/tests/`（5 个测试文件）· `data/`（原稿库 / 模板 / 合规规则）· `examples/`（HTML/CSV/JSON/Markdown 四格式导出示例）
 
 **先交代口径，免得数字看着像编的**：在实习团队小范围灰度一周、3 人样本（团队周报口径）——人均日产从 7-9 条提到 15-18 条，单条脚本 8-12 分钟降到 2-3 分钟，素材过审率约 70% 提到 82%。
 
@@ -157,7 +157,7 @@ LLM 模式通过系统提示词注入「结构要求 + 合规红线」，生成�
     │   ├── generator.py    # 模板模式生成器
     │   ├── llm.py          # LLM 模式生成器
     │   └── exporters.py    # Markdown/JSON/CSV/HTML 导出
-    ├── tests/              # unittest 测试（27 个用例）
+    ├── tests/              # unittest 测试（35 个用例）
     └── requirements.txt    # LLM 模式依赖
 ```
 
@@ -166,7 +166,7 @@ LLM 模式通过系统提示词注入「结构要求 + 合规红线」，生成�
 - **通用层**：最好/第一/国家级/全网最低 等广告法绝对化用语，一律检测并给出替换建议；
 - **医疗品类层**：根治/治愈/药到病除/一贴见效 等功效夸大表述，强校验拦截；
 - **自动修正**：可修复表述自动替换（如 一贴见效 → 温和调理），并附加合规提示语（如「本品为日常用品，不能代替药物」）；
-- **可测试**：27 个单元测试覆盖模板完整性、合规检测/修正、生成器输出、导出器格式。
+- **可测试**：35 个单元测试覆盖模板完整性、合规检测/修正、生成器输出、导出器格式、LLM 提示词与返回解析。
 
 > 说句实话：合规引擎拦的是「已知的高频坑」，不能替代法务意见。真实投放前，还是得以平台最新审核规则和法务确认为准。
 
@@ -187,7 +187,7 @@ python -m unittest discover -s tests -v
 
 ## English
 
-**E-commerce Viral Script Agent (Qianchuan Ads Edition)** — born from a real internship problem: a content team needed 10+ compliant short-video sales scripts per day. The agent bundles a library of 19 real viral scripts, a five-part template system, and a local compliance engine (China Ad-Law absolute-claim detection + mandatory medical-category checks + auto-rewrite). Ships as a zero-dependency single-HTML web app (double-click to use, no install), plus an optional Python CLI with an LLM mode (OpenAI-compatible API) whose output is still force-checked by the local compliance engine — the model writes, the rules block. 27 unit tests included.
+**E-commerce Viral Script Agent (Qianchuan Ads Edition)** — born from a real internship problem: a content team needed 10+ compliant short-video sales scripts per day. The agent bundles a library of 19 real viral scripts, a five-part template system, and a local compliance engine (China Ad-Law absolute-claim detection + mandatory medical-category checks + auto-rewrite). Ships as a zero-dependency single-HTML web app (double-click to use, no install), plus an optional Python CLI with an LLM mode (OpenAI-compatible API) whose output is still force-checked by the local compliance engine — the model writes, the rules block. 35 unit tests included.
 
 👉 Live demo: <https://jin2004-cmd.github.io/ecom-script-agent/>
 
